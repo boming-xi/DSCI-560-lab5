@@ -1,0 +1,176 @@
+{
+  "k": 5,
+  "num_docs": 200,
+  "clusters": [
+    {
+      "cluster": 0,
+      "size": 115,
+      "keywords": [
+        "cancer",
+        "3d",
+        "time",
+        "engineers",
+        "real",
+        "quantum",
+        "world",
+        "help"
+      ],
+      "samples": [
+        {
+          "id": "1qtwjfo",
+          "title": "Engineers just found a way to cool quantum systems using microwave noise",
+          "preview": "Engineers just found a way to cool quantum systems using microwave noise",
+          "score": 0.2658
+        },
+        {
+          "id": "1r05d9m",
+          "title": "Harvard engineers 3D-print soft robots that bend, twist, grasp, and move on command",
+          "preview": "Harvard engineers 3D print soft robots that bend twist grasp and move on command",
+          "score": 0.2238
+        },
+        {
+          "id": "1o4p02i",
+          "title": "Engineered “natural killer” cells could help fight cancer",
+          "preview": "Engineered natural killer cells could help fight cancer",
+          "score": 0.2231
+        }
+      ]
+    },
+    {
+      "cluster": 1,
+      "size": 18,
+      "keywords": [
+        "scientists",
+        "breakthrough",
+        "blood",
+        "cells",
+        "study",
+        "match",
+        "fat",
+        "materials"
+      ],
+      "samples": [
+        {
+          "id": "1o7adwi",
+          "title": "Helping scientists run complex data analyses without writing code",
+          "preview": "Helping scientists run complex data analyses without writing code",
+          "score": 0.6792
+        },
+        {
+          "id": "1qpok5x",
+          "title": "Scientists achieve pancreatic tumour regression in breakthrough study",
+          "preview": "Scientists achieve pancreatic tumour regression in breakthrough study",
+          "score": 0.6559
+        },
+        {
+          "id": "1qlvhas",
+          "title": "Scientists May Have Found a Blueprint to Revive Old Cells",
+          "preview": "Scientists May Have Found a Blueprint to Revive Old Cells",
+          "score": 0.6412
+        }
+      ]
+    },
+    {
+      "cluster": 2,
+      "size": 32,
+      "keywords": [
+        "new",
+        "brain",
+        "mit",
+        "offers",
+        "shields",
+        "water",
+        "armor",
+        "surgery"
+      ],
+      "samples": [
+        {
+          "id": "1ql87uu",
+          "title": "New filtration technology could be gamechanger in removal of Pfas ‘forever chemicals’",
+          "preview": "New filtration technology could be gamechanger in removal of Pfas forever chemicals",
+          "score": 0.8152
+        },
+        {
+          "id": "1ofs1gu",
+          "title": "Forensics’ “Holy Grail”: New Test Recovers Fingerprints From Ammunition Casing",
+          "preview": "Forensics Holy Grail New Test Recovers Fingerprints From Ammunition Casing",
+          "score": 0.4668
+        },
+        {
+          "id": "1p18vm4",
+          "title": "A new take on carbon capture",
+          "preview": "A new take on carbon capture",
+          "score": 0.4543
+        }
+      ]
+    },
+    {
+      "cluster": 3,
+      "size": 13,
+      "keywords": [
+        "life",
+        "battery",
+        "cell",
+        "inspired",
+        "extend",
+        "improves",
+        "lithium",
+        "create"
+      ],
+      "samples": [
+        {
+          "id": "1pajpr5",
+          "title": "Stretchy battery inspired by lemons improves voltage and cell life",
+          "preview": "Stretchy battery inspired by lemons improves voltage and cell life",
+          "score": 0.6934
+        },
+        {
+          "id": "1poa0sn",
+          "title": "ExxonMobil Unveils Graphite Invention To Extend EV Battery Life By 30%",
+          "preview": "ExxonMobil Unveils Graphite Invention To Extend EV Battery Life By 30",
+          "score": 0.6488
+        },
+        {
+          "id": "1qpcts9",
+          "title": "A new chemical trick could extend lithium-ion battery life without redesigning cells",
+          "preview": "A new chemical trick could extend lithium ion battery life without redesigning cells",
+          "score": 0.5667
+        }
+      ]
+    },
+    {
+      "cluster": 4,
+      "size": 22,
+      "keywords": [
+        "ai",
+        "human",
+        "models",
+        "model",
+        "brain",
+        "thoughts",
+        "starting",
+        "uses"
+      ],
+      "samples": [
+        {
+          "id": "1oexxcb",
+          "title": "AI teaches itself and outperforms human-designed algorithms",
+          "preview": "AI teaches itself and outperforms human designed algorithms",
+          "score": 0.7347
+        },
+        {
+          "id": "1qvy73x",
+          "title": "AI model OpenScholar synthesizes scientific research and cites sources as accurately as human experts",
+          "preview": "AI model OpenScholar synthesizes scientific research and cites sources as accurately as human experts",
+          "score": 0.6291
+        },
+        {
+          "id": "1qyj2fh",
+          "title": "Sixteen Claude AI agents working together created a new C compiler",
+          "preview": "Sixteen Claude AI agents working together created a new C compiler",
+          "score": 0.5095
+        }
+      ]
+    }
+  ]
+}

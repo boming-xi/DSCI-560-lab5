@@ -1,0 +1,52 @@
+K = 5
+Documents = 200
+
+Cluster 0 (size=115)
+Keywords: cancer, 3d, time, engineers, real, quantum, world, help
+Samples:
+- 1qtwjfo: Engineers just found a way to cool quantum systems using microwave noise
+  Engineers just found a way to cool quantum systems using microwave noise
+- 1r05d9m: Harvard engineers 3D-print soft robots that bend, twist, grasp, and move on command
+  Harvard engineers 3D print soft robots that bend twist grasp and move on command
+- 1o4p02i: Engineered “natural killer” cells could help fight cancer
+  Engineered natural killer cells could help fight cancer
+
+Cluster 1 (size=18)
+Keywords: scientists, breakthrough, blood, cells, study, match, fat, materials
+Samples:
+- 1o7adwi: Helping scientists run complex data analyses without writing code
+  Helping scientists run complex data analyses without writing code
+- 1qpok5x: Scientists achieve pancreatic tumour regression in breakthrough study
+  Scientists achieve pancreatic tumour regression in breakthrough study
+- 1qlvhas: Scientists May Have Found a Blueprint to Revive Old Cells
+  Scientists May Have Found a Blueprint to Revive Old Cells
+
+Cluster 2 (size=32)
+Keywords: new, brain, mit, offers, shields, water, armor, surgery
+Samples:
+- 1ql87uu: New filtration technology could be gamechanger in removal of Pfas ‘forever chemicals’
+  New filtration technology could be gamechanger in removal of Pfas forever chemicals
+- 1ofs1gu: Forensics’ “Holy Grail”: New Test Recovers Fingerprints From Ammunition Casing
+  Forensics Holy Grail New Test Recovers Fingerprints From Ammunition Casing
+- 1p18vm4: A new take on carbon capture
+  A new take on carbon capture
+
+Cluster 3 (size=13)
+Keywords: life, battery, cell, inspired, extend, improves, lithium, create
+Samples:
+- 1pajpr5: Stretchy battery inspired by lemons improves voltage and cell life
+  Stretchy battery inspired by lemons improves voltage and cell life
+- 1poa0sn: ExxonMobil Unveils Graphite Invention To Extend EV Battery Life By 30%
+  ExxonMobil Unveils Graphite Invention To Extend EV Battery Life By 30
+- 1qpcts9: A new chemical trick could extend lithium-ion battery life without redesigning cells
+  A new chemical trick could extend lithium ion battery life without redesigning cells
+
+Cluster 4 (size=22)
+Keywords: ai, human, models, model, brain, thoughts, starting, uses
+Samples:
+- 1oexxcb: AI teaches itself and outperforms human-designed algorithms
+  AI teaches itself and outperforms human designed algorithms
+- 1qvy73x: AI model OpenScholar synthesizes scientific research and cites sources as accurately as human experts
+  AI model OpenScholar synthesizes scientific research and cites sources as accurately as human experts
+- 1qyj2fh: Sixteen Claude AI agents working together created a new C compiler
+  Sixteen Claude AI agents working together created a new C compiler
