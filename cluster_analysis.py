@@ -205,6 +205,51 @@ def main() -> int:
 
     write_report_txt(os.path.join(args.output_dir, "cluster_report.txt"), report)
 
+    # Save assignments
+    csv_path = os.path.join(args.output_dir, "cluster_assignments.csv")
+    with open(csv_path, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["id", "title", "cluster", "clean_text"])
+        for post, label in zip(meta, labels):
+            writer.writerow(
+                [
+                    post.get("id"),
+                    post.get("title"),
+                    label,
+                    post.get(args.text_field) or get_text(post, args.text_field),
+                ]
+            )
+
+    if args.save_plot and len(texts) > 2:
+        import matplotlib.pyplot as plt
+        from sklearn.decomposition import PCA
+
+        # Dimensionality reduction(SBERT embeddings)
+        pca = PCA(n_components=2, random_state=42)
+        points = pca.fit_transform(X)
+
+        plt.figure(figsize=(8, 6))
+        scatter = plt.scatter(
+            points[:, 0],
+            points[:, 1],
+            c=labels,
+            cmap="tab10",
+            s=25,
+            alpha=0.8,
+        )
+
+        plt.title(f"SBERT Cluster Visualization (K={best_k})")
+        plt.xlabel("PCA Component 1")
+        plt.ylabel("PCA Component 2")
+        plt.colorbar(scatter, label="Cluster")
+        plt.tight_layout()
+
+        plot_path = os.path.join(args.output_dir, "cluster_plot.png")
+        plt.savefig(plot_path, dpi=150)
+        plt.close()
+
+        print(f"PCA plot saved to {plot_path}")
+    
     return 0
 
 
