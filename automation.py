@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-"""
-Automation script for periodic data collection, preprocessing, and storage.
-
-Usage example:
-    python automation.py 5 --subreddit tech --limit 200 --db-type sqlite --sqlite-path reddit.db
-
-While waiting for the next update, the script accepts a message/keywords
-and finds the closest cluster based on TF-IDF + KMeans.
-"""
-
 from __future__ import annotations
 
 import argparse

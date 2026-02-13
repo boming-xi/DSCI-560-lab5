@@ -1,16 +1,3 @@
-#!/usr/bin/env python3
-"""
-Preprocess Reddit posts for storage and analysis.
-
-Features:
-- Remove HTML tags, URLs, and special characters.
-- Filter or flag promoted/advertisement content.
-- Convert timestamps to ISO 8601 (UTC).
-- Mask usernames for privacy.
-- Extract keywords and infer a simple topic label.
-- Optional OCR on local image files.
-"""
-
 from __future__ import annotations
 
 import argparse

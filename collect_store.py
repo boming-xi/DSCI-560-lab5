@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-"""
-Collect Reddit posts from a subreddit and store preprocessed data in a database.
-
-Default target: r/tech
-Collection method: Reddit public JSON endpoint (no auth)
-Storage: SQLite (default) or MySQL
-"""
-
 from __future__ import annotations
 
 import argparse
