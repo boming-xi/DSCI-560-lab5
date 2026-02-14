@@ -174,6 +174,15 @@ def main() -> int:
         sims = cosine_similarity(X[indices], X[indices].mean(axis=0).reshape(1, -1)).ravel()
         ranked = sorted(zip(indices, sims), key=lambda x: x[1], reverse=True)
 
+        # Measure internal similarity of this cluster
+        cluster_vectors = X[indices]
+        if len(indices) > 1:
+            sim_matrix = cosine_similarity(cluster_vectors)
+            upper_triangle = sim_matrix[np.triu_indices(len(indices), k=1)]
+            avg_similarity = float(np.mean(upper_triangle))
+        else:
+            avg_similarity = 1.0
+
         samples = []
         for doc_idx, score in ranked[: args.samples_per_cluster]:
             post = meta[doc_idx]
@@ -195,6 +204,7 @@ def main() -> int:
             {
                 "cluster": cluster_id,
                 "size": len(indices),
+                "avg_intra_similarity": round(avg_similarity, 4),
                 "keywords": keywords,
                 "samples": samples,
             }
@@ -249,6 +259,24 @@ def main() -> int:
         plt.close()
 
         print(f"PCA plot saved to {plot_path}")
+
+        # cluster size distribution
+        cluster_sizes = [cluster["size"] for cluster in report["clusters"]]
+        cluster_ids = [cluster["cluster"] for cluster in report["clusters"]]
+
+        plt.figure(figsize=(6, 4))
+        plt.bar(cluster_ids, cluster_sizes)
+        plt.xlabel("Cluster ID")
+        plt.ylabel("Number of Documents")
+        plt.title("Cluster Size Distribution")
+        plt.tight_layout()
+
+        size_plot_path = os.path.join(args.output_dir, "cluster_size_distribution.png")
+        plt.savefig(size_plot_path, dpi=150)
+        plt.close()
+
+        print(f"Cluster size distribution saved to {size_plot_path}")
+
     
     return 0
 
