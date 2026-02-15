@@ -150,7 +150,9 @@ def create_table(conn, db_type: str) -> None:
                 url TEXT,
                 score INTEGER,
                 num_comments INTEGER,
-                retrieved_utc TEXT
+                retrieved_utc TEXT,
+                embedding TEXT,
+                cluster_id INTEGER
             )
             """
         )
@@ -175,7 +177,9 @@ def create_table(conn, db_type: str) -> None:
                 url TEXT,
                 score INT,
                 num_comments INT,
-                retrieved_utc VARCHAR(64)
+                retrieved_utc VARCHAR(64),
+                embedding TEXT,
+                cluster_id INTEGER
             ) CHARACTER SET utf8mb4
             """
         )
@@ -339,7 +343,25 @@ def main() -> int:
     insert_rows(conn, args.db_type, processed_rows)
     conn.close()
     return 0
+def update_embeddings(conn, posts, embeddings):
+    cursor = conn.cursor()
+    for post, emb in zip(posts, embeddings):
+        emb_json = json.dumps(emb, ensure_ascii=False)
+        cursor.execute(
+            "UPDATE reddit_posts SET embedding = ? WHERE id = ?",
+            (emb_json, post.get("id")),
+        )
+    conn.commit()
 
+
+def update_cluster_ids(conn, posts, labels):
+    cursor = conn.cursor()
+    for post, label in zip(posts, labels):
+        cursor.execute(
+            "UPDATE reddit_posts SET cluster_id = ? WHERE id = ?",
+            (int(label), post.get("id")),
+        )
+    conn.commit()
 
 if __name__ == "__main__":
     raise SystemExit(main())
