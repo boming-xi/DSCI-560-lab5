@@ -1,136 +1,126 @@
 from __future__ import annotations
-
 import argparse
 import json
 import os
 import time
-from datetime import datetime, timezone
-from typing import Dict, Iterable, List, Optional, Tuple
-
+from datetime import datetime,timezone
+from typing import Dict,Iterable,List,Optional,Tuple
 import requests
-
 import preprocess
 
-
-DEFAULT_USER_AGENT = "DSCI-560-lab5/1.0 (contact: student)"
-
+DEFAULT_USER_AGENT="DSCI-560-lab5/1.0 (contact: student)"
 
 def fetch_posts(
-    subreddit: str,
-    total: int,
-    sort: str = "new",
-    time_filter: Optional[str] = None,
-    max_per_request: int = 100,
-    pause: float = 1.0,
-    timeout: int = 10,
-    user_agent: str = DEFAULT_USER_AGENT,
-) -> List[Dict]:
-    posts: List[Dict] = []
-    after: Optional[str] = None
+    subreddit:str,
+    total:int,
+    sort:str="new",
+    time_filter:Optional[str]=None,
+    max_per_request:int=100,
+    pause:float=1.0,
+    timeout:int=10,
+    user_agent:str=DEFAULT_USER_AGENT,
+)->List[Dict]:
 
-    while len(posts) < total:
-        limit = min(max_per_request, total - len(posts))
-        params: Dict[str, object] = {"limit": limit}
-        if after:
-            params["after"] = after
-        if sort == "top" and time_filter:
-            params["t"] = time_filter
+    #accumulate posts until reaching total
+    posts:List[Dict]=[]
+    after_token:Optional[str]=None
 
-        url = f"https://www.reddit.com/r/{subreddit}/{sort}.json"
+    while len(posts)<total:
+        request_limit=min(max_per_request,total-len(posts))
+        request_params:Dict[str,object]={"limit":request_limit}
+        if after_token:
+            request_params["after"]=after_token
+        #time filter only applies when sort=top
+        if sort=="top" and time_filter:
+            request_params["t"]=time_filter
+        request_url=f"https://www.reddit.com/r/{subreddit}/{sort}.json"
         try:
-            resp = requests.get(
-                url,
-                headers={"User-Agent": user_agent},
-                params=params,
+            response=requests.get(
+                request_url,
+                headers={"User-Agent":user_agent},
+                params=request_params,
                 timeout=timeout,
             )
         except requests.exceptions.RequestException:
+            #network hiccup, wait and retry
             time.sleep(pause)
             continue
-
-        if resp.status_code == 429:
-            time.sleep(max(pause, 2.0))
+        if response.status_code==429:
+            #rate limited
+            time.sleep(max(pause,2.0))
             continue
-        if resp.status_code >= 400:
+        if response.status_code>=400:
             break
-
         try:
-            payload = resp.json()
+            payload=response.json()
         except ValueError:
             break
-
-        data = payload.get("data", {})
-        children = data.get("children", [])
+        data_block=payload.get("data",{})
+        children=data_block.get("children",[])
         if not children:
             break
-
         for child in children:
-            post_data = child.get("data", {})
-            permalink = post_data.get("permalink") or ""
+            raw_post_data=child.get("data",{})
+            permalink=raw_post_data.get("permalink") or ""
+            #normalize permalink to full url
             if permalink and permalink.startswith("/"):
-                permalink = f"https://www.reddit.com{permalink}"
-            post = {
-                "id": post_data.get("id"),
-                "subreddit": post_data.get("subreddit"),
-                "title": post_data.get("title"),
-                "selftext": post_data.get("selftext"),
-                "author": post_data.get("author"),
-                "created_utc": post_data.get("created_utc"),
-                "url": post_data.get("url"),
-                "permalink": permalink,
-                "score": post_data.get("score"),
-                "num_comments": post_data.get("num_comments"),
-                "is_self": post_data.get("is_self"),
-                "over_18": post_data.get("over_18"),
-                "thumbnail": post_data.get("thumbnail"),
+                permalink=f"https://www.reddit.com{permalink}"
+            post_record={
+                "id":raw_post_data.get("id"),
+                "subreddit":raw_post_data.get("subreddit"),
+                "title":raw_post_data.get("title"),
+                "selftext":raw_post_data.get("selftext"),
+                "author":raw_post_data.get("author"),
+                "created_utc":raw_post_data.get("created_utc"),
+                "url":raw_post_data.get("url"),
+                "permalink":permalink,
+                "score":raw_post_data.get("score"),
+                "num_comments":raw_post_data.get("num_comments"),
+                "is_self":raw_post_data.get("is_self"),
+                "over_18":raw_post_data.get("over_18"),
+                "thumbnail":raw_post_data.get("thumbnail"),
             }
-            posts.append(post)
-            if len(posts) >= total:
+            posts.append(post_record)
+            if len(posts)>=total:
                 break
-
-        after = data.get("after")
-        if not after:
+        after_token=data_block.get("after")
+        if not after_token:
             break
         time.sleep(pause)
-
     return posts
 
-
-def connect_sqlite(path: str):
+def connect_sqlite(database_path:str):
     import sqlite3
-
-    conn = sqlite3.connect(path)
-    return conn
-
+    #simple sqlite connection
+    database_connection=sqlite3.connect(database_path)
+    return database_connection
 
 def connect_mysql(
-    host: str,
-    port: int,
-    user: str,
-    password: str,
-    database: str,
+    host:str,
+    port:int,
+    user:str,
+    password:str,
+    database:str,
 ):
     try:
-        import mysql.connector  # type: ignore
-    except Exception as exc:  # pragma: no cover
+        import mysql.connector
+    except Exception as error:
         raise RuntimeError(
-            "mysql-connector-python is required for MySQL. "
+            "mysql-connector-python is required. "
             "Install with: pip install mysql-connector-python"
-        ) from exc
-
+        ) from error
     return mysql.connector.connect(
         host=host,
         port=port,
         user=user,
         password=password,
-        database=database,
-    )
+        database=database, )
 
-
-def create_table(conn, db_type: str) -> None:
-    cursor = conn.cursor()
-    if db_type == "sqlite":
-        cursor.execute(
+def create_table(database_connection,db_type:str)->None:
+    database_cursor=database_connection.cursor()
+    #two schemas depending on backend
+    if db_type=="sqlite":
+        database_cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS reddit_posts (
                 id TEXT PRIMARY KEY,
@@ -157,7 +147,7 @@ def create_table(conn, db_type: str) -> None:
             """
         )
     else:
-        cursor.execute(
+        database_cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS reddit_posts (
                 id VARCHAR(32) PRIMARY KEY,
@@ -183,17 +173,16 @@ def create_table(conn, db_type: str) -> None:
             ) CHARACTER SET utf8mb4
             """
         )
-    conn.commit()
 
+    database_connection.commit()
 
-def format_row(processed: Dict) -> Tuple:
-    raw = processed.get("raw") or {}
-    keywords = processed.get("keywords") or []
-    retrieved_utc = datetime.now(timezone.utc).isoformat()
-
+def format_row(processed:Dict)->Tuple:
+    raw_block=processed.get("raw") or {}
+    keyword_list=processed.get("keywords") or []
+    retrieved_timestamp=datetime.now(timezone.utc).isoformat()
     return (
-        processed.get("id") or raw.get("id"),
-        processed.get("subreddit") or raw.get("subreddit"),
+        processed.get("id") or raw_block.get("id"),
+        processed.get("subreddit") or raw_block.get("subreddit"),
         processed.get("title"),
         processed.get("body"),
         processed.get("clean_text"),
@@ -201,34 +190,31 @@ def format_row(processed: Dict) -> Tuple:
         processed.get("created_utc"),
         processed.get("created_iso_utc"),
         processed.get("author_masked"),
-        json.dumps(keywords, ensure_ascii=False),
+        json.dumps(keyword_list,ensure_ascii=False),
         processed.get("topic"),
         int(bool(processed.get("is_irrelevant"))),
-        json.dumps(raw, ensure_ascii=False),
-        raw.get("permalink"),
-        raw.get("url"),
-        raw.get("score"),
-        raw.get("num_comments"),
-        retrieved_utc,
+        json.dumps(raw_block,ensure_ascii=False),
+        raw_block.get("permalink"),
+        raw_block.get("url"),
+        raw_block.get("score"),
+        raw_block.get("num_comments"),
+        retrieved_timestamp,
     )
 
-
-def insert_rows(conn, db_type: str, rows: List[Tuple]) -> None:
-    if not rows:
+def insert_rows(database_connection,db_type:str,row_values:List[Tuple])->None:
+    if not row_values:
         return
-
-    columns = (
+    column_list=(
         "id, subreddit, title, body, clean_text, ocr_text, created_utc, created_iso_utc, "
         "author_masked, keywords, topic, is_irrelevant, raw, permalink, url, score, "
         "num_comments, retrieved_utc"
     )
-    placeholder = "?" if db_type == "sqlite" else "%s"
-    placeholders = ", ".join([placeholder] * 18)
-
-    if db_type == "sqlite":
-        sql = f"INSERT OR REPLACE INTO reddit_posts ({columns}) VALUES ({placeholders})"
+    placeholder="?" if db_type=="sqlite" else "%s"
+    placeholder_block=", ".join([placeholder]*18)
+    if db_type=="sqlite":
+        sql_statement=f"INSERT OR REPLACE INTO reddit_posts ({column_list}) VALUES ({placeholder_block})"
     else:
-        update_clause = (
+        update_clause=(
             "subreddit=VALUES(subreddit), "
             "title=VALUES(title), "
             "body=VALUES(body), "
@@ -247,15 +233,13 @@ def insert_rows(conn, db_type: str, rows: List[Tuple]) -> None:
             "num_comments=VALUES(num_comments), "
             "retrieved_utc=VALUES(retrieved_utc)"
         )
-        sql = (
-            f"INSERT INTO reddit_posts ({columns}) VALUES ({placeholders}) "
+        sql_statement=(
+            f"INSERT INTO reddit_posts ({column_list}) VALUES ({placeholder_block}) "
             f"ON DUPLICATE KEY UPDATE {update_clause}"
         )
-
-    cursor = conn.cursor()
-    cursor.executemany(sql, rows)
-    conn.commit()
-
+    database_cursor=database_connection.cursor()
+    database_cursor.executemany(sql_statement,row_values)
+    database_connection.commit()
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect and store Reddit posts.")
@@ -272,9 +256,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pause", type=float, default=1.0)
     parser.add_argument("--timeout", type=int, default=10)
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT)
-
     parser.add_argument("--raw-output", help="Optional path to save raw JSON.")
-
     parser.add_argument("--db-type", choices=["sqlite", "mysql"], default="sqlite")
     parser.add_argument("--sqlite-path", default="reddit.db")
     parser.add_argument("--mysql-host", default=None)
@@ -282,7 +264,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mysql-user", default=None)
     parser.add_argument("--mysql-password", default=None)
     parser.add_argument("--mysql-database", default=None)
-
     parser.add_argument("--max-keywords", type=int, default=8)
     parser.add_argument("--drop-irrelevant", action="store_true")
     parser.add_argument("--enable-ocr", action="store_true")
@@ -298,7 +279,6 @@ def resolve_mysql_args(args: argparse.Namespace) -> Dict[str, object]:
         "password": args.mysql_password or os.environ.get("MYSQL_PASSWORD", ""),
         "database": args.mysql_database or os.environ.get("MYSQL_DATABASE", ""),
     }
-
 
 def main() -> int:
     args = parse_args()
@@ -343,25 +323,25 @@ def main() -> int:
     insert_rows(conn, args.db_type, processed_rows)
     conn.close()
     return 0
-def update_embeddings(conn, posts, embeddings):
-    cursor = conn.cursor()
-    for post, emb in zip(posts, embeddings):
-        emb_json = json.dumps(emb, ensure_ascii=False)
-        cursor.execute(
+
+def update_embeddings(database_connection,posts,embeddings):
+    database_cursor=database_connection.cursor()
+    for post_record,embedding_vector in zip(posts,embeddings):
+        embedding_json=json.dumps(embedding_vector,ensure_ascii=False)
+        database_cursor.execute(
             "UPDATE reddit_posts SET embedding = ? WHERE id = ?",
-            (emb_json, post.get("id")),
+            (embedding_json,post_record.get("id")),
         )
-    conn.commit()
+    database_connection.commit()
 
-
-def update_cluster_ids(conn, posts, labels):
-    cursor = conn.cursor()
-    for post, label in zip(posts, labels):
-        cursor.execute(
+def update_cluster_ids(database_connection,posts,cluster_labels):
+    database_cursor=database_connection.cursor()
+    for post_record,cluster_label in zip(posts,cluster_labels):
+        database_cursor.execute(
             "UPDATE reddit_posts SET cluster_id = ? WHERE id = ?",
-            (int(label), post.get("id")),
+            (int(cluster_label),post_record.get("id")),
         )
-    conn.commit()
+    database_connection.commit()
 
-if __name__ == "__main__":
+if __name__=="__main__":
     raise SystemExit(main())
