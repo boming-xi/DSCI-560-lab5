@@ -1,4 +1,4 @@
-# DSCI-560 Lab 5 — Data Collection, Storage, and Preprocessing (r/tech)
+# DSCI-560 Lab 5 – Data Collection, Storage, and Preprocessing (r/tech)
 
 This repository contains **data collection**, **storage**, and **preprocessing** for Reddit posts.  
 The chosen topic/subreddit is: `r/tech` (https://www.reddit.com/r/tech/).
@@ -10,7 +10,7 @@ Requires Python 3.8+.
 
 Install required packages:
 ```bash
-pip install requests
+pip install requests scikit-learn sentence-transformers matplotlib
 ```
 
 Optional (for MySQL storage):
@@ -23,10 +23,11 @@ Optional (for OCR on images):
 pip install pytesseract pillow
 ```
 
-Optional (for clustering + plots):
-```bash
-pip install scikit-learn matplotlib
-```
+> **Notes:**
+> - `sentence-transformers` automatically installs PyTorch if not already available.
+> - The clustering module uses Sentence-BERT (`all-MiniLM-L6-v2`) for semantic embeddings.
+> - `matplotlib` is required for PCA visualization and cluster plots.
+
 ---
 ## 2) Data Collection + Storage (Recommended)
 
@@ -89,29 +90,37 @@ python preprocess.py --input raw.json --output clean.json --max-keywords 8
 
 ## 4) Forum Analysis & Clustering (Part 4)
 
-This step clusters the cleaned messages and shows keywords + example posts per cluster.
+This step clusters the cleaned messages and shows keywords, statistics, and visualizations per cluster.
 
-Embedding method:
-- **TF-IDF** (scikit-learn) to convert each message into a fixed-length vector.
+**Embedding method:**
+- **Sentence-BERT** (`all-MiniLM-L6-v2`) for semantic document embeddings.
+- **TF-IDF** is retained for keyword extraction and interpretability.
+
+**Clustering method:**
+- Automatic K selection using silhouette score (range: 2 to `--k`).
+- K-Means clustering applied to semantic embeddings.
 
 Run clustering on the cleaned data:
 ```bash
-python cluster_analysis.py --input clean.json --k 5 --save-plot
+python cluster_analysis.py --input clean.json --save-plot
 ```
 
 Output files (under `cluster_output/` by default):
-- `cluster_report.json` / `cluster_report.txt` — cluster keywords + sample messages
+- `cluster_report.json` / `cluster_report.txt` — cluster keywords, silhouette score, and sample messages
 - `cluster_assignments.csv` — document → cluster mapping
-- `cluster_plot.png` — 2D visualization (if `--save-plot`)
+- `cluster_plot.png` — PCA visualization of semantic clusters (if `--save-plot`)
+- `cluster_size_distribution.png` — bar chart of cluster sizes (if `--save-plot`)
 
 Common options:
 ```bash
-python cluster_analysis.py --input clean.json --k 6 --top-terms 10 --samples-per-cluster 3 --plot-method pca
+python cluster_analysis.py --input clean.json --k 8 --top-terms 10 --samples-per-cluster 3 --save-plot
 ```
 
-Notes:
-- Clustering is based on TF-IDF embeddings of `clean_text`.
-- If your dataset is very small, reduce `--k`.
+> **Notes:**
+> - Clustering is performed using Sentence-BERT semantic embeddings.
+> - The optimal number of clusters (K) is automatically selected using silhouette score.
+> - If the dataset is small, the script dynamically limits the maximum K value.
+> - If your dataset is very small (< 10 posts), increase post count or reduce `--k`.
 
 ---
 ## 5) Automation (Part 5)
